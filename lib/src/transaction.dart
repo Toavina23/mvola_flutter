@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:mvola_flutter/mvola_dio.config.dart';
 import 'package:mvola_flutter/src/transaction_result.dart';
+import 'package:mvola_flutter/src/transaction_status.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:usage/uuid/uuid.dart';
 
@@ -23,6 +24,8 @@ class Transaction {
   String currency = "Ar";
   final String descriptionText;
 
+  String? serverCorrelationId;
+
   Future<TransactionResult> make() async {
     TransactionResult transactionResult = TransactionResult(success: true);
     BaseOptions dioBaseOptions = env == "DEV" ? devConfig : prodConfig;
@@ -33,11 +36,33 @@ class Transaction {
           data: jsonEncode(buildTransactionData()));
       if (response.statusCode != 202) {
         transactionResult.failed();
+      } else {
+        serverCorrelationId = response.data["serverCorrelationId"];
       }
     } on DioError catch (e) {
       transactionResult.failed();
     }
     return transactionResult;
+  }
+
+  Future<TransactionStatus?> getTransactionStatus() async {
+    BaseOptions dioBaseOptions = env == "DEV" ? devConfig : prodConfig;
+    Dio dio = Dio(dioBaseOptions);
+    dio.options.headers["X-CorrelationID"] = Uuid().generateV4();
+    try {
+      final response =
+          await dio.get("$transactionStatusUrl$serverCorrelationId");
+      if (response.statusCode! >= 200 && response.statusCode! < 300) {
+        return TransactionStatus(
+            status: response.data["status"],
+            serverCorrelationId: response.data["serverCorrelationId"],
+            objectReference: response.data["objectReference"]);
+      }
+    } catch (e) {
+      print(e);
+      return null;
+    }
+    return null;
   }
 
   String removeUnavailableCharacters(String original) {
