@@ -1,0 +1,2 @@
+#TODO mettre en place les configurations pour dio
+#TODO mettre une configuration pour le mode developpement et production

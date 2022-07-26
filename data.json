@@ -1,0 +1,14 @@
+{
+  "amount": "2000.0",
+  "currency": "AR",
+  "descriptionText": "this is a description",
+  "requestDate": "2022-07-26T18:53:47.364Z",
+  "requestingOrganisationTransactionReference": "0343500004-034350003-2000.0-26-7-2022 18:53:47",
+  "debitParty": [{ "key": "msisdn", "value": "034350003" }],
+  "creditParty": [{ "key": "msisdn", "value": "0343500004" }],
+  "metadata": [
+    { "key": "partnerName", "value": "App" },
+    { "key": "fc", "value": "USD" },
+    { "key": "amountFc", "value": "1" }
+  ]
+}
